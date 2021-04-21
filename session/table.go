@@ -14,6 +14,10 @@ import (
 func (s *Session) Model(value interface{}) *Session{
 	if s.refTable == nil || reflect.TypeOf(value) != reflect.TypeOf(s.refTable.Model){
 		s.refTable = schema.Parse(value, s.dialect)
+		//调试使用
+		log.Mytprinter.IndentLvUp()
+		log.Mytprinter.Print("Model changed")
+		log.Mytprinter.IndentLvDown()
 	}
 	return s
 }

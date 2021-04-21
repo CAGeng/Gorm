@@ -1,6 +1,7 @@
 package session
 
 import (
+	"Gorm/clause"
 	"Gorm/log"
 	"Gorm/dialect"
 	"Gorm/schema"
@@ -14,6 +15,7 @@ type Session struct {
 	db      *sql.DB
 	dialect dialect.Dialect
 	refTable *schema.Schema
+	clause clause.Clause
 	sql     strings.Builder
 	sqlVars []interface{}
 }
@@ -30,6 +32,7 @@ func New(db *sql.DB, dialect dialect.Dialect) *Session {
 func (s *Session) Clear() {
 	s.sql.Reset()
 	s.sqlVars = nil
+	s.clause = clause.Clause{}
 }
 
 // DB returns *sql.DB

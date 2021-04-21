@@ -25,7 +25,8 @@ func (schema *Schema)GetField(name string) *Field{
 	return schema.fieldMap[name]
 }
 
-// Values return the values of dest's member variables
+// RecordValues return the values of dest's member variables
+//eg.将 u1、u2 转换为 ("Tom", 18), ("Same", 25) 这样的格式
 func (schema *Schema) RecordValues(dest interface{}) []interface{} {
 	destValue := reflect.Indirect(reflect.ValueOf(dest))
 	var fieldValues []interface{}
