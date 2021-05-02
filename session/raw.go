@@ -2,8 +2,8 @@ package session
 
 import (
 	"Gorm/clause"
-	"Gorm/log"
 	"Gorm/dialect"
+	"Gorm/log"
 	"Gorm/schema"
 	"database/sql"
 	"strings"
@@ -12,19 +12,30 @@ import (
 //session: 维护打开的数据库对象
 //后两个成员变量用来拼接 SQL 语句和 SQL 语句中占位符的对应值
 type Session struct {
-	db      *sql.DB
-	dialect dialect.Dialect
+	db       *sql.DB
+	dialect  dialect.Dialect
+	tx       *sql.Tx
 	refTable *schema.Schema
-	clause clause.Clause
-	sql     strings.Builder
-	sqlVars []interface{}
+	clause   clause.Clause
+	sql      strings.Builder
+	sqlVars  []interface{}
 }
+
+// CommonDB is a minimal function set of db
+type CommonDB interface {
+	Query(query string, args ...interface{}) (*sql.Rows, error)
+	QueryRow(query string, args ...interface{}) *sql.Row
+	Exec(query string, args ...interface{}) (sql.Result, error)
+}
+
+var _ CommonDB = (*sql.DB)(nil)
+var _ CommonDB = (*sql.Tx)(nil)
 
 // New creates a instance of Session
 func New(db *sql.DB, dialect dialect.Dialect) *Session {
 	return &Session{
-		db: db,
-		dialect:dialect,
+		db:      db,
+		dialect: dialect,
 	}
 }
 
@@ -35,8 +46,11 @@ func (s *Session) Clear() {
 	s.clause = clause.Clause{}
 }
 
-// DB returns *sql.DB
-func (s *Session) DB() *sql.DB {
+// DB returns tx if a tx begins. otherwise return *sql.DB
+func (s *Session) DB() CommonDB {
+	if s.tx != nil {
+		return s.tx
+	}
 	return s.db
 }
 

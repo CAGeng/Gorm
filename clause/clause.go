@@ -1,34 +1,36 @@
 package clause
 
 import (
-	"Gorm/log"
 	"strings"
 )
 
 type Clause struct {
-	sql map[Type]string
+	sql     map[Type]string
 	sqlVars map[Type][]interface{}
 }
 
-
 type Type int
-const(
+
+const (
 	INSERT Type = iota
 	VALUES
 	SELECT
 	LIMIT
 	WHERE
 	ORDERBY
+	UPDATE
+	DELETE
+	COUNT
 )
 
 //Set 方法根据 Type 调用对应的 generator，生成该子句对应的 SQL 语句
-func (c *Clause) Set(name Type, vars ...interface{}){
-	//调试使用
-	log.Mytprinter.IndentLvUp()
-	defer log.Mytprinter.IndentLvDown()
-	log.Mytprinter.Print("clause.clause.Set begin")
+func (c *Clause) Set(name Type, vars ...interface{}) {
+	////调试使用
+	//log.Mytprinter.IndentLvUp()
+	//defer log.Mytprinter.IndentLvDown()
+	//log.Mytprinter.Print("/clause/clause.go: Set begin")
 
-	if c.sql == nil{
+	if c.sql == nil {
 		c.sql = make(map[Type]string)
 		c.sqlVars = make(map[Type][]interface{})
 	}
@@ -38,19 +40,19 @@ func (c *Clause) Set(name Type, vars ...interface{}){
 }
 
 //Build 方法根据传入的 Type 的顺序，构造出最终的 SQL 语句。
-func (c *Clause) Build(orders ...Type)(string, []interface{}){
+func (c *Clause) Build(orders ...Type) (string, []interface{}) {
 	//调试使用
-	log.Mytprinter.IndentLvUp()
-	defer log.Mytprinter.IndentLvDown()
-	log.Mytprinter.Print("clause.clause.Build begin")
+	//log.Mytprinter.IndentLvUp()
+	//defer log.Mytprinter.IndentLvDown()
+	//log.Mytprinter.Print("/clause/clause.go: Build begin")
 
 	var sqls []string
 	var vars []interface{}
-	for _,order := range orders{
-		if sql, ok := c.sql[order]; ok{
-			sqls = append(sqls,sql)
+	for _, order := range orders {
+		if sql, ok := c.sql[order]; ok {
+			sqls = append(sqls, sql)
 			vars = append(vars, c.sqlVars[order]...)
 		}
 	}
-	return strings.Join(sqls," "),vars
+	return strings.Join(sqls, " "), vars
 }
